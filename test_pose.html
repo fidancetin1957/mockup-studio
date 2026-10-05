@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧪 MediaPipe Pose + 3D Kumaş Kıvrım Laboratuvarı</title>
+  <style>
+    :root {
+      --bg-dark: #0A0D14;
+      --card-bg: #131A29;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #00FFCC;
+      --accent-green: #10B981;
+      --accent-pink: #FF0077;
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+    }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 30px;
+    }
+    .header {
+      max-width: 1200px;
+      margin: 0 auto 25px auto;
+    }
+    h1 {
+      color: var(--accent-cyan);
+      margin: 0 0 8px 0;
+      font-size: 24px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 20px;
+      background: #182235;
+      border: 1px solid rgba(0, 255, 204, 0.25);
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin-bottom: 25px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .toolbar label {
+      color: #E2E8F0;
+      font-weight: 500;
+    }
+    .toolbar input[type="range"] {
+      cursor: pointer;
+      accent-color: var(--accent-cyan);
+    }
+    .toolbar select {
+      background: #0D131F;
+      color: #FFF;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .status-bar {
+      margin-bottom: 25px;
+      padding: 12px 18px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 8px;
+      font-weight: 600;
+      color: #10B981;
+      font-size: 13px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 25px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    .canvas-wrap {
+      width: 100%;
+      height: 380px;
+      background: #000;
+      position: relative;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .card-body {
+      padding: 16px;
+    }
+    .card-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 8px;
+      color: #FFFFFF;
+    }
+    .meta-line {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    .tag-green { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .tag-cyan { background: rgba(0, 255, 204, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⚡ MediaPipe Pose + 3D Kumaş Kıvrım ve Bükülme Laboratuvarı</h1>
+    <div class="subtitle">İzole Test Alanı: Omuz Açısı Hizalama + 3D Fiziksel Kumaş Kıvrımları (Sobel Displacement) + Işık/Gölge Render</div>
+
+    <div class="toolbar">
+      <div class="toolbar-group">
+        <input type="checkbox" id="toggle-guides" checked>
+        <label for="toggle-guides">📐 Kılavuz Çizgileri Göster</label>
+      </div>
+
+      <div class="toolbar-group" style="margin-left:auto;">
+        <label for="scale-slider">📏 Omuz Oranı (Boyut):</label>
+        <input type="range" id="scale-slider" min="55" max="85" value="70">
+        <span id="scale-val" style="color:var(--accent-cyan);font-weight:bold;min-width:32px;">70%</span>
+      </div>
+
+      <div class="toolbar-group">
+        <label for="wrinkle-slider">🌊 Kıvrım Gücü:</label>
+        <input type="range" id="wrinkle-slider" min="0" max="100" value="65">
+        <span id="wrinkle-val" style="color:var(--accent-cyan);font-weight:bold;min-width:32px;">65%</span>
+      </div>
+
+      <div class="toolbar-group">
+        <label for="preset-select">🎨 Baskı:</label>
+        <select id="preset-select">
+          <option value="dtg">DTG (Doğal Mat)</option>
+          <option value="dtf">DTF (Canlı Transfer)</option>
+          <option value="vintage">Vintage (Yıkanmış)</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="status-box" class="status-bar">
+      ⏳ Google MediaPipe Modeli & 3D Shader Yükleniyor...
+    </div>
+  </div>
+
+  <div id="results-grid" class="grid"></div>
+
+  <script type="module" src="/src/test-pose.js"></script>
+</body>
+</html>

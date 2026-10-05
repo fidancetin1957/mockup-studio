@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mockup Studio - POD Fabrikası</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <!-- GİRİŞ EKRANI / AUTH OVERLAY -->
+  <div class="auth-overlay" id="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="brand-badge" style="margin: 0 auto 12px; width: fit-content; font-size: 13px; padding: 4px 12px;">POD</div>
+        <h2>Mockup Studio</h2>
+        <p>Lütfen devam etmek için giriş yapınız</p>
+      </div>
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+        <div class="auth-field">
+          <label for="auth-username">Kullanıcı Adı</label>
+          <input type="text" id="auth-username" autocomplete="username" placeholder="Kullanıcı adınızı girin" required />
+        </div>
+        <div class="auth-field">
+          <label for="auth-password">Şifre</label>
+          <input type="password" id="auth-password" autocomplete="current-password" placeholder="Şifrenizi girin" required />
+        </div>
+        <div id="auth-error" class="auth-error-msg" style="display: none;"></div>
+        <button type="submit" class="auth-submit-btn">Giriş Yap ➔</button>
+      </form>
+      <div class="auth-footer">
+        <span>🔒 Özel POD Mockup & Tasarım Stüdyosu</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const AUTH_KEY = 'mockup_studio_auth_v1';
+      const VALID_USERS = ['amcaoglu', 'amcaoğlu'];
+      const VALID_PASS = 'laylaylom';
+
+      function updateAuthUI() {
+        const isAuth = localStorage.getItem(AUTH_KEY) === 'true';
+        const overlay = document.getElementById('auth-overlay');
+        const userBadge = document.getElementById('user-badge');
+        if (overlay) {
+          overlay.style.display = isAuth ? 'none' : 'flex';
+        }
+        if (userBadge) {
+          userBadge.style.display = isAuth ? 'flex' : 'none';
+        }
+      }
+
+      window.handleAuthSubmit = function(e) {
+        e.preventDefault();
+        const u = (document.getElementById('auth-username').value || '').trim().toLowerCase();
+        const p = (document.getElementById('auth-password').value || '');
+        const errEl = document.getElementById('auth-error');
+
+        if (VALID_USERS.includes(u) && p === VALID_PASS) {
+          localStorage.setItem(AUTH_KEY, 'true');
+          if (errEl) errEl.style.display = 'none';
+          updateAuthUI();
+        } else {
+          if (errEl) {
+            errEl.textContent = 'Hatalı kullanıcı adı veya şifre!';
+            errEl.style.display = 'block';
+          }
+        }
+      };
+
+      window.handleLogout = function() {
+        if (confirm('Oturumu kapatmak istediğinize emin misiniz?')) {
+          localStorage.removeItem(AUTH_KEY);
+          updateAuthUI();
+          const uInput = document.getElementById('auth-username');
+          const pInput = document.getElementById('auth-password');
+          if (uInput) uInput.value = '';
+          if (pInput) pInput.value = '';
+        }
+      };
+
+      window.addEventListener('DOMContentLoaded', updateAuthUI);
+      updateAuthUI();
+    })();
+  </script>
+
+  <div class="app-layout">
+    
+    <!-- ÜST HEADER / API BAR -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-badge">POD</div>
+        <div class="brand-titles">
+          <h1>Mockup Studio</h1>
+          <span class="brand-subtitle">300 DPI Kumaş & Mockup Haritalama Fabrikası</span>
+        </div>
+      </div>
+
+      <div class="header-right" style="display: flex; align-items: center; gap: 10px;">
+        <div class="user-profile-badge" id="user-badge" style="display: none; align-items: center; gap: 8px;">
+          <span style="font-size: 12px; color: #a5b4fc; font-weight: 600; background: rgba(99, 102, 241, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.3);">👤 Amcaoglu</span>
+          <button onclick="handleLogout()" title="Oturumu Kapat" class="logout-btn" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; padding: 4px 8px; font-size: 11px; cursor: pointer; transition: 0.2s;">Çıkış</button>
+        </div>
+
+        <button class="api-manager-btn" id="api-btn" onclick="toggleApiPopover()">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+          </svg>
+          <span id="api-badge-text">AI Motorları & API Havuzu</span>
+        </button>
+      </div>
+
+      <!-- API Key Popover Modal -->
+      <div class="api-popover" id="api-popover">
+        <div class="api-popover-header">
+          <div class="api-popover-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            Yapay Zeka & API Yönetimi
+          </div>
+          <button class="icon-close-btn" onclick="toggleApiPopover()">✕</button>
+        </div>
+
+        <!-- Sekme Geçiş Butonları -->
+        <div class="api-tab-bar">
+          <button class="api-tab-btn active" id="tab-btn-gemini" onclick="switchApiTab('gemini')">
+            🟢 Gemini SEO (Ücretsiz)
+          </button>
+          <button class="api-tab-btn" id="tab-btn-image" onclick="switchApiTab('image')">
+            🟣 Görsel Çizim (BYOK)
+          </button>
+        </div>
+
+        <div class="api-popover-body">
+          <!-- SEKME 1: GEMINI SEO -->
+          <div class="api-tab-content active" id="tab-content-gemini">
+            <p class="api-hint">Etsy & Amazon SEO, başlık, etiket ve kumaş renk tespiti için kullanılır. Google AI Studio ile <strong>tamamen ücretsizdir</strong>.</p>
+            <div class="api-keys-container" id="api-keys-container"></div>
+            <div class="api-actions-flex">
+              <button class="add-key-btn" onclick="addNewApiKeyRow()">+ Yeni Gemini Key Ekle</button>
+              <button class="guide-trigger-btn" onclick="openGuideModal('gemini')">📸 1 Dakikada Nasıl Alınır? (Slayt Rehber)</button>
+            </div>
+          </div>
+
+          <!-- SEKME 2: GÖRSEL ÇİZİM MOTORU (BYOK) -->
+          <div class="api-tab-content" id="tab-content-image">
+            <p class="api-hint">Yapay zeka ile sıfırdan mockup ve desen üretmek için kendi anahtarınızı kullanın. Görsel başı ~$0.02 (yaklaşık 80 kuruş), sistem komisyon almaz.</p>
+            
+            <div class="provider-select-group">
+              <label class="setting-label">Görsel Çizim Sağlayıcısı</label>
+              <select class="custom-select" id="image-provider-select" onchange="onImageProviderChange(this.value)">
+                <option value="fal">FLUX.1 (Fal.ai) — En Gerçekçi İnsan & Kumaş [Önerilen]</option>
+                <option value="imagen3">Google Imagen 3 (Google AI Studio) — Foto-gerçekçi</option>
+                <option value="openai">OpenAI (DALL-E 3) — Genel Çizim</option>
+                <option value="ideogram">Ideogram 2.0 — Tişört Tipografi & Yazı Ustası</option>
+              </select>
+            </div>
+
+            <div class="image-key-input-box" style="margin-top: 10px;">
+              <label class="setting-label" id="image-key-label">Fal.ai API Key (fal_...)</label>
+              <div class="api-key-row">
+                <input type="password" class="api-key-input" id="image-api-key-input" placeholder="Anahtarınızı buraya yapıştırın..." onchange="saveImageApiKey(this.value)" />
+                <button class="sub-btn primary" style="padding: 6px 12px; font-size: 11px;" onclick="saveImageApiKeyFromInput()">Kaydet</button>
+              </div>
+            </div>
+
+            <div class="provider-cost-card" id="provider-cost-card">
+              <div class="cost-badge">Sağlayıcı Tarifesi (Kullandıkça Öde)</div>
+              <div class="cost-desc">Ücret doğrudan seçtiğiniz sağlayıcının güncel tarifesine göre kendi hesabınızdan çekilir. Sistemimiz hiçbir ek komisyon veya marj almaz.</div>
+            </div>
+
+            <button class="guide-trigger-btn full" onclick="openGuideModal('image')">📸 Çizim API Anahtarı Nasıl Alınır? (Slayt Rehber)</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ANA ÇALIŞMA ALANI -->
+    <main class="app-body">
+      
+      <!-- SOL KONTROL PANELİ -->
+      <aside class="control-panel">
+        <div class="panel-scroll">
+          
+          <!-- KART 1: GRAFİK TASARIM (PNG) - EN ÜSTTE -->
+          <div class="ui-card" id="card-design">
+            <div class="card-title">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+              </svg>
+              1. Grafik Tasarım (PNG)
+            </div>
+
+            <div class="dropzone primary-dropzone" id="design-dropzone">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span id="design-upload-text">Şeffaf Tasarım Dosyasını Yükle</span>
+              <small>PNG, WebP, JPG veya SVG formatı</small>
+            </div>
+            <input type="file" id="design-file-input" accept="image/*,.png,.jpg,.jpeg,.webp,.svg" style="display: none;">
+
+            <!-- Akıllı Tasarım Araçları: Arka Plan Sil & AI Çizim -->
+            <div class="card-action-bar" style="display: flex; gap: 6px; margin-top: 8px;">
+              <button class="sub-btn" id="btn-bg-remove" style="flex: 1; border-color: rgba(99, 102, 241, 0.4); font-weight: 500;" onclick="removeDesignBackground()">
+                ✂️ Arka Planı Sil
+              </button>
+              <button class="sub-btn" id="btn-ai-design" style="flex: 1; background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(99, 102, 241, 0.2)); border-color: var(--accent-purple); color: #c084fc; font-weight: 500;" onclick="openAiDesignModal()">
+                ✨ AI ile Desen Çiz
+              </button>
+            </div>
+
+            <div class="design-actions-row" style="margin-top: 6px; display: flex; gap: 6px;">
+              <button class="sub-btn" style="flex:1" onclick="centerDesign()">🎯 Ortala</button>
+              <button class="sub-btn" style="flex:1" onclick="resetDesignTransform()">🔄 Sıfırla</button>
+              <button class="sub-btn delete" id="btn-remove-design" style="flex:1; color: var(--accent-red);" onclick="removeDesign()">🗑 Kaldır</button>
+            </div>
+          </div>
+
+          <!-- KART 2: ŞABLON & KLASÖR KÜTÜPHANESİ -->
+          <div class="ui-card" id="card-library">
+            <div class="card-title">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+              </svg>
+              2. Mockup Şablonları & Klasörler
+            </div>
+
+            <div class="folder-select-row">
+              <select class="custom-select" id="folder-select" onchange="onFolderChange(this.value)">
+                <!-- Dinamik klasörler ve hazır mockuplar -->
+              </select>
+              <button class="mini-action-btn delete" id="btn-delete-folder" title="Klasörü Sil" onclick="deleteCurrentFolder()">🗑</button>
+            </div>
+
+            <!-- Bilgisayardan Klasör Seç & Sihirbaz Başlat -->
+            <div class="folder-upload-actions" style="display: flex; gap: 8px;">
+              <button class="sub-btn primary" style="flex: 1;" onclick="triggerPcFolderUpload()">
+                📁 PC'den Klasör Seç
+              </button>
+              <button class="sub-btn wizard-start-btn" style="flex: 1; background-color: var(--accent-purple);" onclick="startAutoAlignment()">
+                ✨ Otomatik Hizala
+              </button>
+              <button class="sub-btn" style="flex: 1;" onclick="startMappingWizard()">
+                📍 Manuel Haritala
+              </button>
+              <input type="file" id="pc-folder-input" webkitdirectory directory multiple style="display: none;">
+            </div>
+
+            <!-- AI ile Yeni Boş Mockup Sahnesi Üretme Butonu -->
+            <button class="sub-btn ai-mockup-trigger-btn" id="btn-ai-mockup" onclick="openAiMockupModal()">
+              <span>✨ AI ile Yeni Boş Mockup Sahnesi Üret</span>
+            </button>
+
+            <div class="dropzone" id="mockup-dropzone" style="padding: 10px; margin-top: 6px;">
+              <span>+ Tekil Boş Fotoğraf Ekle</span>
+              <small>Fotoğrafları buraya sürükleyebilirsiniz</small>
+            </div>
+            <input type="file" id="mockup-file-input" accept="image/*,.png,.jpg,.jpeg,.webp" multiple style="display: none;">
+
+            <!-- Thumbnail Şeridi -->
+            <div class="thumbnail-strip" id="mockup-thumbnails">
+              <!-- Yüklenen mockuplar buraya gelir -->
+            </div>
+          </div>
+
+          <!-- KART 3: KUMAŞ VE YERLEŞİM AYARLARI -->
+          <div class="ui-card" id="card-transform">
+            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                </svg>
+                3. Kumaş & Yerleşim Ayarları
+              </div>
+              <button class="sub-btn" id="btn-target-collar" style="background-color: #FF0077; color: white; padding: 4px 8px; font-size: 12px; border: none; border-radius: 4px;" onclick="toggleManualCollarTargeting()">🎯 Yakayı İşaretle</button>
+            </div>
+
+            <!-- Baskı Teknolojisi & Kıvrım -->
+            <div class="slider-row" style="margin-top: 10px;">
+              <div class="slider-group" style="flex:1">
+                <div class="slider-header">
+                  <span>🎨 Baskı Teknolojisi</span>
+                </div>
+                <select class="custom-select" id="select-print-type" onchange="updateSlidersFromUI()" style="margin-top: 5px;">
+                  <option value="dtg">DTG (Doğal Pamuk Emici)</option>
+                  <option value="dtf">DTF (Canlı Saten Transfer)</option>
+                  <option value="vintage">Vintage (Soluk Yıkamalı)</option>
+                </select>
+              </div>
+              <div class="slider-group" style="flex:1">
+                <div class="slider-header">
+                  <span>🌊 Kumaş Kıvrım Yoğunluğu</span>
+                  <input type="number" class="slider-val-input" id="val-wrinkle" value="90" onchange="syncManualInput('wrinkle', this.value)">
+                </div>
+                <input type="range" class="custom-range" id="input-wrinkle" min="0" max="100" value="90" oninput="updateSlidersFromUI()">
+              </div>
+            </div>
+
+            <!-- Slider: Ölçek -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Tasarım Boyutu (Ölçek)</span>
+                <input type="number" class="slider-val-input" id="val-scale" value="35" onchange="syncManualInput('scale', this.value)">
+              </div>
+              <input type="range" class="custom-range" id="input-scale" min="5" max="100" value="35" oninput="updateSlidersFromUI()">
+            </div>
+
+            <!-- Slider: X & Y Konumu -->
+            <div class="slider-row">
+              <div class="slider-group" style="flex:1">
+                <div class="slider-header">
+                  <span>X (Yatay)</span>
+                  <input type="number" class="slider-val-input" id="val-posX" value="0" onchange="syncManualInput('posX', this.value)">
+                </div>
+                <input type="range" class="custom-range" id="input-posX" min="-400" max="400" value="0" oninput="updateSlidersFromUI()">
+              </div>
+              <div class="slider-group" style="flex:1">
+                <div class="slider-header">
+                  <span>Y (Dikey)</span>
+                  <input type="number" class="slider-val-input" id="val-posY" value="-80" onchange="syncManualInput('posY', this.value)">
+                </div>
+                <input type="range" class="custom-range" id="input-posY" min="-400" max="400" value="-80" oninput="updateSlidersFromUI()">
+              </div>
+            </div>
+
+            <!-- Slider: Döndürme & Opaklık -->
+            <div class="slider-row">
+              <div class="slider-group" style="flex:1">
+                <div class="slider-header">
+                  <span>Döndürme Açısı</span>
+                  <input type="number" class="slider-val-input" id="val-rotation" value="0" onchange="syncManualInput('rotation', this.value)">
+                </div>
+                <input type="range" class="custom-range" id="input-rotation" min="-180" max="180" value="0" oninput="updateSlidersFromUI()">
+              </div>
+              <div class="slider-group" style="flex:1">
+                <div class="slider-header">
+                  <span>Opaklık (DTG)</span>
+                  <input type="number" class="slider-val-input" id="val-opacity" value="100" onchange="syncManualInput('opacity', this.value)">
+                </div>
+                <input type="range" class="custom-range" id="input-opacity" min="10" max="100" value="100" oninput="updateSlidersFromUI()">
+              </div>
+            </div>
+
+            <!-- (Butonlar yukarıdaki Sihirbaz Barına taşındı) -->
+          </div>
+
+          <!-- KART 4: 300 DPI DIŞA AKTARMA (EXPORT) -->
+          <div class="ui-card" id="card-export">
+            <div class="card-title">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+              4. 300 DPI Dışa Aktarma (Export)
+            </div>
+
+            <!-- Çözünürlük Çarpanı -->
+            <div class="setting-row">
+              <label class="setting-label">Çıktı Çözünürlüğü</label>
+              <div class="tab-button-group" id="export-scale-group">
+                <button class="tab-btn" id="scale-2x" onclick="setExportScale('2x')">2x (2000px)</button>
+                <button class="tab-btn active" id="scale-3x" onclick="setExportScale('3x')">3x (3000px 300 DPI)</button>
+                <button class="tab-btn" id="scale-4x" onclick="setExportScale('4x')">4x (4K)</button>
+                <button class="tab-btn" id="scale-5x" onclick="setExportScale('5x')">5x (Master)</button>
+              </div>
+            </div>
+
+            <!-- Format Seçimi -->
+            <div class="setting-row">
+              <label class="setting-label">Dosya Formatı</label>
+              <div class="tab-button-group" id="export-format-group">
+                <button class="tab-btn active" id="format-png" onclick="setExportFormat('png')">PNG (Kayıpsız)</button>
+                <button class="tab-btn" id="format-webp" onclick="setExportFormat('webp')">WebP (Hızlı)</button>
+                <button class="tab-btn" id="format-jpeg" onclick="setExportFormat('jpeg')">JPEG (%95)</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- SAĞ İNTERAKTİF KANVAS ALANI -->
+      <section class="workspace-panel">
+        
+        <!-- Canlı 300 DPI Çözünürlük Rozeti -->
+        <div class="resolution-badge" id="res-badge">
+          3000 x 3000 px • 300 DPI Hazır
+        </div>
+
+        <!-- Üst Çizgi / Grid Düğmesi -->
+        <div class="top-overlay-tools">
+          <button class="circle-btn" id="grid-btn" title="Hizalama Izgarasını Aç/Kapat" onclick="toggleGridOverlay()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 🌟 HARİTALAMA SİHİRBAZ BARI (KAYDET VE GEÇ) 🌟 -->
+        <div class="mapping-wizard-bar" id="mapping-wizard-bar">
+          <div class="wizard-status">
+            <span class="wizard-dot"></span>
+            <span id="wizard-step-text">📍 Haritalama: Mockup 1 / 5</span>
+          </div>
+          <div class="wizard-actions">
+            <button class="wizard-btn" style="background: rgba(255,255,255,0.1); color: #fff; margin-right: 8px;" onclick="toggleTransformBox()" title="Çerçeveyi (Kutuyu) Gizle/Göster">
+              🔲 Kutu
+            </button>
+            <button class="wizard-btn" style="background: rgba(255,255,255,0.1); color: #fff; margin-right: 16px;" onclick="togglePrintGuide()" title="Mavi Kılavuz Çizgileri Gizle/Göster">
+              📏 Kılavuz
+            </button>
+            <button class="wizard-btn save-next" onclick="saveAndNextMockup()">
+              💾 Bu Mockup'ı Kaydet & Geç ➔
+            </button>
+            <button class="wizard-btn copy-all" onclick="applyToAllAndFinish()">
+              📋 Bu Konumu Tüm Klasöre Mühürle
+            </button>
+            <button class="wizard-btn undo" id="btn-undo-seal" style="display: none; background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);" onclick="undoLastSeal()" title="Son yapılan mühürlemeyi geri al (Ctrl+Z)">
+              ↩️ Geri Al
+            </button>
+            <button class="wizard-btn close" onclick="closeMappingWizard()">
+              ✕ Bitir
+            </button>
+          </div>
+        </div>
+
+        <!-- Kanvas Kutusu -->
+        <div class="canvas-viewport" id="canvas-viewport">
+          <canvas id="previewCanvas" width="1000" height="1000"></canvas>
+          
+          <div class="grid-overlay" id="grid-overlay">
+            <div class="grid-h"></div>
+            <div class="grid-v"></div>
+          </div>
+        </div>
+
+        <!-- AKSİYON BUTONLARI -->
+        <div class="action-footer">
+          <button class="action-btn download-single" onclick="downloadCurrentMockup()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            <span>Tekil Mockup İndir (300 DPI)</span>
+          </button>
+
+          <button class="action-btn batch-download" onclick="batchRenderAllFolder()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            <span>🚀 Tek Tıkla Toplu Mockup Üret (300 DPI)</span>
+          </button>
+        </div>
+
+        <!-- İlerleme / Yükleniyor Overlay -->
+        <div class="batch-loader-overlay" id="batch-loader">
+          <div class="spinner"></div>
+          <div class="loader-title" id="loader-title">Mockuplar 300 DPI Olarak Üretiliyor...</div>
+          <div class="loader-progress" id="loader-progress">0 / 0 Tamamlandı</div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- SLAYT REHBER MODALI (INTERACTIVE WALKTHROUGH) -->
+  <div class="guide-modal-backdrop" id="guide-modal-backdrop" onclick="closeGuideModal(event)">
+    <div class="guide-modal-content" onclick="event.stopPropagation()">
+      <div class="guide-modal-header">
+        <div class="guide-modal-title" id="guide-modal-title">
+          <span class="guide-icon" id="guide-header-icon">💡</span>
+          <span id="guide-title-text">Google Gemini API Anahtarı Nasıl Alınır?</span>
+        </div>
+        <button class="icon-close-btn" onclick="closeGuideModal()">✕</button>
+      </div>
+
+      <!-- ADIM GÖSTERGESİ (STEPPER) -->
+      <div class="guide-stepper" id="guide-stepper">
+        <!-- Dinamik Adım Butonları 1, 2, 3 -->
+      </div>
+
+      <!-- SLAYT GÖVDESİ (EKRAN GÖRÜNTÜSÜ VE ANLATIM) -->
+      <div class="guide-slide-body">
+        <div class="guide-screen-frame" id="guide-screen-frame">
+          <!-- Resim alanı veya ekran görüntüsü placeholder -->
+          <div class="guide-placeholder-box" id="guide-placeholder-box">
+            <div class="placeholder-icon">📸</div>
+            <div class="placeholder-tag" id="guide-screen-tag">Ekran Görüntüsü Alanı</div>
+            <div class="placeholder-sub" id="guide-screen-sub">Ekran görüntüsü eklendiğinde burada tam çözünürlükle gösterilecek</div>
+          </div>
+          <img class="guide-screen-img" id="guide-screen-img" src="" alt="Rehber Ekran Görüntüsü" style="display:none;" />
+        </div>
+
+        <div class="guide-text-area">
+          <h4 id="guide-step-title">Adım 1: Google AI Studio'ya Giriş Yapın</h4>
+          <p id="guide-step-desc">Tarayıcınızdan aistudio.google.com adresine gidin ve mevcut Google hesabınızla oturum açın.</p>
+          <div class="guide-link-box" id="guide-link-box">
+            <a href="https://aistudio.google.com" target="_blank" rel="noopener" id="guide-action-link" class="guide-ext-btn">
+              🔗 Google AI Studio'yu Aç (Yeni Sekme)
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLAYT KONTROL BUTONLARI -->
+      <div class="guide-modal-footer">
+        <button class="sub-btn" id="guide-prev-btn" onclick="prevGuideSlide()">◀ Önceki Adım</button>
+        <div class="guide-dots-container" id="guide-dots-container"></div>
+        <button class="sub-btn primary" id="guide-next-btn" onclick="nextGuideSlide()">Sonraki Adım ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI MOCKUP SAHNESİ ÜRETİM MODALİ -->
+  <div class="ai-modal-backdrop" id="ai-mockup-modal-backdrop" onclick="if(event.target === this) closeAiMockupModal()">
+    <div class="ai-modal-card">
+      <div class="ai-modal-header">
+        <div class="ai-modal-title">
+          <span class="ai-sparkle-icon">✨</span>
+          <div>
+            <h3>AI Mockup Sahne Stüdyosu</h3>
+            <p>Satış getiren, yüksek çözünürlüklü gerçekçi model veya düz zemin sahneleri üretin</p>
+          </div>
+        </div>
+        <button class="icon-close-btn" onclick="closeAiMockupModal()">✕</button>
+      </div>
+
+      <div class="ai-modal-body">
+        <!-- Hazır Popüler Sahne Konseptleri -->
+        <div class="ai-section-group">
+          <label class="setting-label">1. Popüler Sahne Konsepti Seçin</label>
+          <div class="preset-pill-grid" id="mockup-scene-presets">
+            <button class="preset-pill active" data-scene="cafe" onclick="selectMockupPreset('cafe')">
+              ☕ Kafe & Barista
+            </button>
+            <button class="preset-pill" data-scene="urban" onclick="selectMockupPreset('urban')">
+              🏙️ Sokak / Şehir Modası
+            </button>
+            <button class="preset-pill" data-scene="nature" onclick="selectMockupPreset('nature')">
+              🌿 Doğa & Açık Hava
+            </button>
+            <button class="preset-pill" data-scene="flatlay" onclick="selectMockupPreset('flatlay')">
+              🪵 Ahşap Zemin Flat Lay
+            </button>
+            <button class="preset-pill" data-scene="studio" onclick="selectMockupPreset('studio')">
+              🤍 Minimal Stüdyo
+            </button>
+            <button class="preset-pill" data-scene="skater" onclick="selectMockupPreset('skater')">
+              🛹 Dinamik Genç Tarz
+            </button>
+          </div>
+        </div>
+
+        <!-- Model ve Tişört Seçenekleri -->
+        <div class="ai-options-row">
+          <div class="ai-option-col">
+            <label class="setting-label">Model Tercihi</label>
+            <select class="custom-select" id="mockup-model-select" onchange="updateMockupPromptFromInputs()">
+              <option value="female">Kadın Model</option>
+              <option value="male">Erkek Model</option>
+              <option value="flatlay">Model Yok (Düz Zemin / Flat Lay)</option>
+              <option value="hanger">Askıda (Minimal Ahşap Askı)</option>
+            </select>
+          </div>
+          <div class="ai-option-col">
+            <label class="setting-label">Tişört Rengi</label>
+            <select class="custom-select" id="mockup-color-select" onchange="updateMockupPromptFromInputs()">
+              <option value="white">Beyaz (White)</option>
+              <option value="black">Siyah (Black)</option>
+              <option value="cream">Krem / Bej (Cream)</option>
+              <option value="gray">Antrasit Koyu Gri (Charcoal)</option>
+              <option value="blue">Pastel Mavi (Sky Blue)</option>
+              <option value="olive">Haki Yeşil (Olive)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Prompt Editörü -->
+        <div class="ai-section-group">
+          <div class="setting-label-row">
+            <label class="setting-label">AI Komutu (Prompt)</label>
+            <span class="prompt-hint">Seçimlerinize göre otomatik doldurulur, dilediğiniz gibi özelleştirebilirsiniz</span>
+          </div>
+          <textarea class="ai-prompt-textarea" id="mockup-prompt-input" rows="3" placeholder="Mockup sahnesini tarif edin..."></textarea>
+        </div>
+
+        <!-- Sağlayıcı Durumu & Uyarı -->
+        <div class="ai-provider-status" id="mockup-provider-status">
+          <!-- Dinamik aktif motor & anahtar durumu -->
+        </div>
+      </div>
+
+      <div class="ai-modal-footer">
+        <button class="sub-btn" onclick="closeAiMockupModal()">İptal</button>
+        <button class="sub-btn primary ai-generate-btn" id="btn-generate-mockup" onclick="generateAiMockup()">
+          <span>🎨 Mockup Sahnesini Üret</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI GRAFİK DESEN ÜRETİM MODALİ -->
+  <div class="ai-modal-backdrop" id="ai-design-modal-backdrop" onclick="if(event.target === this) closeAiDesignModal()">
+    <div class="ai-modal-card">
+      <div class="ai-modal-header">
+        <div class="ai-modal-title">
+          <span class="ai-sparkle-icon">🎨</span>
+          <div>
+            <h3>AI Grafik Desen Tasarımcısı</h3>
+            <p>Tişört baskıları için yüksek kaliteli, temiz vektör ve illüstrasyon grafikleri üretin</p>
+          </div>
+        </div>
+        <button class="icon-close-btn" onclick="closeAiDesignModal()">✕</button>
+      </div>
+
+      <div class="ai-modal-body">
+        <!-- POD Popüler Tasarım Stilleri -->
+        <div class="ai-section-group">
+          <label class="setting-label">1. Popüler Tasarım Stili Seçin</label>
+          <div class="preset-pill-grid" id="design-style-presets">
+            <button class="preset-pill active" data-style="vintage" onclick="selectDesignStylePreset('vintage')">
+              📻 90'lar Vintage
+            </button>
+            <button class="preset-pill" data-style="lineart" onclick="selectDesignStylePreset('lineart')">
+              🖋️ Minimal Çizim
+            </button>
+            <button class="preset-pill" data-style="mascot" onclick="selectDesignStylePreset('mascot')">
+              🐾 Karakter / Maskot
+            </button>
+            <button class="preset-pill" data-style="typography" onclick="selectDesignStylePreset('typography')">
+              🔤 Retro Tipografi
+            </button>
+            <button class="preset-pill" data-style="botanical" onclick="selectDesignStylePreset('botanical')">
+              🌸 Çiçek & Botanik
+            </button>
+            <button class="preset-pill" data-style="cyberpunk" onclick="selectDesignStylePreset('cyberpunk')">
+              ⚡ Cyberpunk & Neon
+            </button>
+          </div>
+        </div>
+
+        <!-- Prompt Editörü -->
+        <div class="ai-section-group">
+          <div class="setting-label-row">
+            <label class="setting-label">Tasarım Komutu (Prompt)</label>
+            <span class="prompt-hint">Çizilmesini istediğiniz grafiği detaylandırın</span>
+          </div>
+          <textarea class="ai-prompt-textarea" id="design-prompt-input" rows="3" placeholder="Çizdirmek istediğiniz deseni buraya yazın..."></textarea>
+        </div>
+
+        <!-- Şeffaflık Seçeneği -->
+        <div class="ai-toggle-box">
+          <label class="custom-checkbox-label">
+            <input type="checkbox" id="design-auto-bg-remove" checked>
+            <span class="checkbox-text">
+              <strong>✨ Otomatik Olarak Şeffaf Yap (Arka Planı Temizle)</strong>
+              <small>Grafiğin arka planı tarayıcınızda yapay zeka ile otomatik temizlenir ve şeffaf PNG olarak tişörte yerleştirilir.</small>
+            </span>
+          </label>
+        </div>
+
+        <!-- Sağlayıcı Durumu & Uyarı -->
+        <div class="ai-provider-status" id="design-provider-status">
+          <!-- Dinamik aktif motor & anahtar durumu -->
+        </div>
+      </div>
+
+      <div class="ai-modal-footer">
+        <button class="sub-btn" onclick="closeAiDesignModal()">İptal</button>
+        <button class="sub-btn primary ai-generate-btn" id="btn-generate-design" onclick="generateAiDesign()">
+          <span>✨ Deseni Üret & Yerleştir</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  <!-- JSZip for Batch Downloads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
